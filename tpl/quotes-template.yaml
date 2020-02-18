@@ -101,11 +101,11 @@ objects:
           - name: Who
             value: ${WHO}
           - name: Architects
-            value: Fuck
+            value: Smelly
           - name: Engineers
-            value: Bonjour
+            value: Damned
           - name: Message
-            value: "${{WHO}} ${WHO}"
+            value: "$(eval echo \$$Who $Who)"
           imagePullPolicy: Always
           name: quotesapi
           ports:
