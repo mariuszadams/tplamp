@@ -1,13 +1,21 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: quotes
+  name: quotes-tpl
   annotations:
     openshift.io/display-name: Quotes Application
     description: The Quotes application provides an HTTP API that returns a random, funny quote.
     iconClass: icon-php
     tags: php,mysql
 objects:
+- apiVersion: v1
+  data:
+    MEngineers: "Smelly ${WHO}!"
+    MArchitects: "Bloody ${WHO}!"
+    M: "Ahoy ${WHO}!"
+  kind: ConfigMap
+  metadata:
+    name: msg
 - apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
@@ -44,7 +52,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: php:7.2
+          name: php:7.1
           namespace: openshift
       type: Source
     successfulBuildsHistoryLimit: 5
@@ -84,6 +92,7 @@ objects:
     template:
       metadata:
         annotations:
+          template.openshift.io/expose-message: "{.spec.containers.env[?(.name==\"Who\")].value}"
         labels:
           app: quotesapi
           deploymentconfig: quotesapi
@@ -98,6 +107,15 @@ objects:
             value: quotesdb
           - name: DATABASE_USER
             value: quoteapp
+#          - name: Who
+#            value: ${WHO}
+          - name: Message
+            valueFrom:
+              configMapKeyRef:
+                key: M${WHO}
+                name: msg
+#            value: "Ahoy ${WHO}"
+#           value: $(eval echo $${WHO} ${WHO})
           imagePullPolicy: Always
           name: quotesapi
           ports:
@@ -276,3 +294,7 @@ parameters:
   description: Secret for webhooks
   generate: expression
   from: '[a-zA-Z0-9]{40}'
+- name: WHO
+  displayName: Wtf
+  description: Who the freak
+  required: true
