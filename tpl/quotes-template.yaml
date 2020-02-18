@@ -8,6 +8,14 @@ metadata:
     iconClass: icon-php
     tags: php,mysql
 objects:
+- apiVersion: v1
+  data:
+    MEngineers: "Smelly ${WHO}!"
+    MArchitects: "Bloody ${WHO}!"
+    M: "Ahoy ${WHO}!"
+  kind: ConfigMap
+  metadata:
+    name: msg
 - apiVersion: image.openshift.io/v1
   kind: ImageStream
   metadata:
@@ -84,6 +92,7 @@ objects:
     template:
       metadata:
         annotations:
+          template.openshift.io/expose-message: "{.spec.containers.env[?(.name==\"Who\")].value}"
         labels:
           app: quotesapi
           deploymentconfig: quotesapi
@@ -98,14 +107,15 @@ objects:
             value: quotesdb
           - name: DATABASE_USER
             value: quoteapp
-          - name: Who
-            value: ${WHO}
-          - name: Architects
-            value: Smelly
-          - name: Engineers
-            value: Damned
+#          - name: Who
+#            value: ${WHO}
           - name: Message
-            value: "$(eval echo \$$Who $Who)"
+            valueFrom:
+              configMapKeyRef:
+                key: M${WHO}
+                name: msg
+#            value: "Ahoy ${WHO}"
+#           value: $(eval echo $${WHO} ${WHO})
           imagePullPolicy: Always
           name: quotesapi
           ports:
