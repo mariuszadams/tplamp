@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: quotes
+  name: quotes-tpl
   annotations:
     openshift.io/display-name: Quotes Application
     description: The Quotes application provides an HTTP API that returns a random, funny quote.
@@ -44,7 +44,7 @@ objects:
       sourceStrategy:
         from:
           kind: ImageStreamTag
-          name: php:7.2
+          name: php:7.1
           namespace: openshift
       type: Source
     successfulBuildsHistoryLimit: 5
