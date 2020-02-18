@@ -1,0 +1,3 @@
+#!/bin/sh
+sh -c ./populate-sh.db
+exec /bin/run-mysqld
