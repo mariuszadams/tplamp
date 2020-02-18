@@ -1,70 +1,19 @@
-apiVersion: template.openshift.io/v1
-kind: Template
-metadata:
-  name: quotes-tpl
-  annotations:
-    openshift.io/display-name: Quotes Application
-    description: The Quotes application provides an HTTP API that returns a random, funny quote.
-    iconClass: icon-php
-    tags: php,mysql
-objects:
-- apiVersion: image.openshift.io/v1
-  kind: ImageStream
-  metadata:
-    annotations:
-    labels:
-      app: quotesapi
-    name: quotesapi
-  spec:
-    lookupPolicy:
-      local: false
-- apiVersion: build.openshift.io/v1
-  kind: BuildConfig
-  metadata:
-    annotations:
-    labels:
-      app: quotesapi
-    name: quotesapi
-  spec:
-    failedBuildsHistoryLimit: 5
-    nodeSelector: null
-    output:
-      to:
-        kind: ImageStreamTag
-        name: quotesapi:latest
-    postCommit: {}
-    resources: {}
-    runPolicy: Serial
-    source:
-      contextDir: quotes
-      git:
-        uri: ${APP_GIT_URL}
-      type: Git
-    strategy:
-      sourceStrategy:
-        from:
-          kind: ImageStreamTag
-          name: php:7.1
-          namespace: openshift
-      type: Source
-    successfulBuildsHistoryLimit: 5
-    triggers:
-    - github:
-        secret: ${SECRET}
-      type: GitHub
-    - generic:
-        secret: ${SECRET}
-      type: Generic
-    - type: ConfigChange
-    - imageChange:
-      type: ImageChange
+apiVersion: v1
+items:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
     annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2020-02-18T18:36:28Z"
+    generation: 4
     labels:
       app: quotesapi
     name: quotesapi
+    namespace: tp
+    resourceVersion: "1191782"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/tp/deploymentconfigs/quotesapi
+    uid: 93718ad7-527d-11ea-967a-0a580a80011f
   spec:
     replicas: 1
     revisionHistoryLimit: 10
@@ -84,6 +33,8 @@ objects:
     template:
       metadata:
         annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
         labels:
           app: quotesapi
           deploymentconfig: quotesapi
@@ -93,19 +44,22 @@ objects:
           - name: DATABASE_NAME
             value: quotesdb
           - name: DATABASE_PASSWORD
-            value: ${PASSWORD}
+            value: mypass
           - name: DATABASE_SERVICE_NAME
             value: quotesdb
           - name: DATABASE_USER
             value: quoteapp
-          - name: Who
-            value: ${WHO}
-          - name: Architects
-            value: Fuck
-          - name: Engineers
-            value: Bonjour
-          - name: Message
-            value: "${{WHO}} ${WHO}"
+          - name: ARCHITECTS
+            valueFrom:
+              configMapKeyRef:
+                key: Architects
+                name: hell
+          - name: ENGINEERS
+            valueFrom:
+              configMapKeyRef:
+                key: Engineers
+                name: hell
+          image: image-registry.openshift-image-registry.svc:5000/tp/quotesapi@sha256:7e1dc8979ba719bd2cfeaadb934c47109dde6663beab7e842c390f2ddfe0b816
           imagePullPolicy: Always
           name: quotesapi
           ports:
@@ -131,14 +85,47 @@ objects:
         from:
           kind: ImageStreamTag
           name: quotesapi:latest
+          namespace: tp
+        lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/tp/quotesapi@sha256:7e1dc8979ba719bd2cfeaadb934c47109dde6663beab7e842c390f2ddfe0b816
       type: ImageChange
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2020-02-18T18:37:42Z"
+      lastUpdateTime: "2020-02-18T18:37:42Z"
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2020-02-18T19:48:43Z"
+      lastUpdateTime: "2020-02-18T19:48:46Z"
+      message: replication controller "quotesapi-3" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 3
+    observedGeneration: 4
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
   metadata:
     annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: "2020-02-18T18:36:28Z"
+    generation: 2
     labels:
       app: quotesdb
     name: quotesdb
+    namespace: tp
+    resourceVersion: "1163806"
+    selfLink: /apis/apps.openshift.io/v1/namespaces/tp/deploymentconfigs/quotesdb
+    uid: 9388b4db-527d-11ea-967a-0a580a80011f
   spec:
     replicas: 1
     revisionHistoryLimit: 10
@@ -158,6 +145,8 @@ objects:
     template:
       metadata:
         annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
         labels:
           app: quotesdb
           deploymentconfig: quotesdb
@@ -167,9 +156,10 @@ objects:
           - name: MYSQL_DATABASE
             value: quotesdb
           - name: MYSQL_PASSWORD
-            value: ${PASSWORD}
+            value: mypass
           - name: MYSQL_USER
             value: quoteapp
+          image: image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
           imagePullPolicy: IfNotPresent
           name: quotesdb
           ports:
@@ -201,90 +191,33 @@ objects:
           kind: ImageStreamTag
           name: mysql:5.7
           namespace: openshift
+        lastTriggeredImage: image-registry.openshift-image-registry.svc:5000/openshift/mysql@sha256:9a781abe7581cc141e14a7e404ec34125b3e89c008b14f4e7b41e094fd3049fe
       type: ImageChange
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-    labels:
-      app: quotesapi
-    name: quotesapi
-  spec:
-    ports:
-    - name: 8080-tcp
-      port: 8080
-      protocol: TCP
-      targetPort: 8080
-    - name: 8443-tcp
-      port: 8443
-      protocol: TCP
-      targetPort: 8443
-    selector:
-      app: quotesapi
-      deploymentconfig: quotesapi
-    sessionAffinity: None
-    type: ClusterIP
-- apiVersion: v1
-  kind: Service
-  metadata:
-    annotations:
-    labels:
-      app: quotesdb
-    name: quotesdb
-  spec:
-    ports:
-    - name: 3306-tcp
-      port: 3306
-      protocol: TCP
-      targetPort: 3306
-    selector:
-      app: quotesdb
-      deploymentconfig: quotesdb
-    sessionAffinity: None
-    type: ClusterIP
-- apiVersion: route.openshift.io/v1
-  kind: Route
-  metadata:
-    annotations:
-    labels:
-      app: quotesapi
-    name: quotesapi
-  spec:
-    port:
-      targetPort: 8080-tcp
-    to:
-      kind: Service
-      name: quotesapi
-      weight: 100
-    wildcardPolicy: None
-- apiVersion: v1
-  kind: PersistentVolumeClaim
-  metadata:
-    annotations:
-    name: quotesdb-claim
-  spec:
-    accessModes:
-    - ReadWriteOnce
-    resources:
-      requests:
-        storage: 300Mi
-parameters:
-- name: APP_GIT_URL
-  displayName: Application Source Git URL
-  description: The Git URL of the application source code
-  required: true
-  value: http://github.com/mariuszadams/tplamp
-- name: PASSWORD
-  displayName: Database Password
-  description: Password to access the database
-  generate: expression
-  from: '[a-zA-Z0-9]{16}'
-- name: SECRET
-  displayName: Webhook Secret
-  description: Secret for webhooks
-  generate: expression
-  from: '[a-zA-Z0-9]{40}'
-- name: WHO
-  displayName: Wtf
-  description: Who the freak
-  required: true
+  status:
+    availableReplicas: 1
+    conditions:
+    - lastTransitionTime: "2020-02-18T18:37:04Z"
+      lastUpdateTime: "2020-02-18T18:37:04Z"
+      message: Deployment config has minimum availability.
+      status: "True"
+      type: Available
+    - lastTransitionTime: "2020-02-18T18:37:05Z"
+      lastUpdateTime: "2020-02-18T18:37:05Z"
+      message: replication controller "quotesdb-1" successfully rolled out
+      reason: NewReplicationControllerAvailable
+      status: "True"
+      type: Progressing
+    details:
+      causes:
+      - type: ConfigChange
+      message: config change
+    latestVersion: 1
+    observedGeneration: 2
+    readyReplicas: 1
+    replicas: 1
+    unavailableReplicas: 0
+    updatedReplicas: 1
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
