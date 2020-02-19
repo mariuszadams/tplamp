@@ -32,7 +32,8 @@ admin_flags="--defaults-file=$MYSQL_DEFAULTS_FILE $mysql_flags"
 process_extending_files ${APP_DATA}/mysql-init/ ${CONTAINER_SCRIPTS_PATH}/init/
 
 ##### sh -c ./populate-sh.db
-echo "***"
+  echo "            ***"
+echo "            *** ***"
 echo "*** *** Running DB import *** ***"
 if [ -e $MYSQL_DATADIR/mysql/quotesdb/quote.frm ]; then
   echo "*** *** Importing DB tables... *** ***"
@@ -41,7 +42,8 @@ if [ -e $MYSQL_DATADIR/mysql/quotesdb/quote.frm ]; then
 else
   echo "*** *** DB already initialized *** ***"
 fi
-  echo "***"
+echo "            *** ***"
+  echo "            ***"
 #####
 # Restart the MySQL server with public IP bindings
 shutdown_local_mysql
