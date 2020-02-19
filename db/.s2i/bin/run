@@ -32,7 +32,9 @@ admin_flags="--defaults-file=$MYSQL_DEFAULTS_FILE $mysql_flags"
 process_extending_files ${APP_DATA}/mysql-init/ ${CONTAINER_SCRIPTS_PATH}/init/
 
 ##### sh -c ./populate-sh.db
+echo "*** *** Running DB import *** ***"
 mysql $mysql_flags quotesdb < quote.sql
+echo "*** *** DB import done *** ***"
 #####
 # Restart the MySQL server with public IP bindings
 shutdown_local_mysql
