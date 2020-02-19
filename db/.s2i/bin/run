@@ -34,7 +34,7 @@ process_extending_files ${APP_DATA}/mysql-init/ ${CONTAINER_SCRIPTS_PATH}/init/
 ##### sh -c ./populate-sh.db
 echo "***"
 echo "*** *** Running DB import *** ***"
-if [ ! -e "$MYSQL_DATADIR/mysql/quotesdb/quote.frm" ]; then
+if [ ! -e $MYSQL_DATADIR/mysql/quotesdb/quote.frm ]; then
   echo "*** *** Importing DB tables... *** ***"
   mysql $mysql_flags quotesdb < quote.sql
   echo "*** *** DB import done *** ***"
